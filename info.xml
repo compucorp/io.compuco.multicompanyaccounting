@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<extension key="io.compuco.multicompanyaccounting" type="module">
+  <file>multicompanyaccounting</file>
+  <name>Multiple Companies Accounting</name>
+  <description>Enhances CiviCRM with multiple companies (legal entities) accounting</description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>Compuco</author>
+    <email>hello@compuco.io</email>
+  </maintainer>
+  <urls>
+    <url desc="Documentation">https://github.com/compucorp/io.compuco.multicompanyaccounting/blob/master/readme.md</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+  </urls>
+  <releaseDate>2022-11-16</releaseDate>
+  <version>1.0.0-alpha</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>5.39</ver>
+  </compatibility>
+  <comments>
+    Supported CiviCRM versions  :
+    - CiviCRM 5.39.1
+  </comments>
+  <classloader>
+    <psr4 prefix="Civi\" path="Civi"/>
+  </classloader>
+  <civix>
+    <namespace>CRM/Multicompanyaccounting</namespace>
+    <angularModule>crmMulticompanyaccounting</angularModule>
+  </civix>
+</extension>
