@@ -1,0 +1,24 @@
+<?php
+
+class CRM_Multicompanyaccounting_BAO_Company extends CRM_Multicompanyaccounting_DAO_Company {
+
+  /**
+   * Create a new Company based on array-data
+   *
+   * @param array $params key-value pairs
+   * @return CRM_Multicompanyaccounting_DAO_Company|NULL
+   **/
+  public static function create($params) {
+    $entityName = 'Company';
+    $hook = empty($params['id']) ? 'create' : 'edit';
+
+    CRM_Utils_Hook::pre($hook, $entityName, CRM_Utils_Array::value('id', $params), $params);
+    $instance = new CRM_Multicompanyaccounting_DAO_Company();
+    $instance->copyValues($params);
+    $instance->save();
+    CRM_Utils_Hook::post($hook, $entityName, $instance->id, $instance);
+
+    return $instance;
+  }
+
+}
