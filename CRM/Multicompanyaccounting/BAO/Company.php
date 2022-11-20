@@ -21,10 +21,18 @@ class CRM_Multicompanyaccounting_BAO_Company extends CRM_Multicompanyaccounting_
     return $instance;
   }
 
+  public static function getById($id) {
+    $record = new CRM_Multicompanyaccounting_DAO_Company();
+    $record->id = $id;
+    $record->find(TRUE);
+
+    return $record;
+  }
+
   public static function deleteById($id) {
-    $obj = new CRM_Multicompanyaccounting_DAO_Company();
-    $obj->id = $id;
-    $obj->delete();
+    $record = new CRM_Multicompanyaccounting_DAO_Company();
+    $record->id = $id;
+    $record->delete();
   }
 
 }
