@@ -1,5 +1,4 @@
 <?php
-use CRM_Multicompanyaccounting_ExtensionUtil as E;
 
 class CRM_Multicompanyaccounting_Page_Company extends CRM_Core_Page {
 
