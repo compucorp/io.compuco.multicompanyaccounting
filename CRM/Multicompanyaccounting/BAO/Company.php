@@ -7,7 +7,7 @@ class CRM_Multicompanyaccounting_BAO_Company extends CRM_Multicompanyaccounting_
    *
    * @param array $params key-value pairs
    * @return CRM_Multicompanyaccounting_DAO_Company|NULL
-   **/
+   */
   public static function create($params) {
     $entityName = 'Company';
     $hook = empty($params['id']) ? 'create' : 'edit';

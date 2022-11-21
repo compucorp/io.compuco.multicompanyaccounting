@@ -42,7 +42,7 @@ class CRM_Multicompanyaccounting_Form_Company_Add extends CRM_Core_Form {
         'label_field' => 'msg_title',
         'params' => [
           'is_default' => 1,
-        ]
+        ],
       ],
       'select' => ['minimumInputLength' => 0],
       'placeholder' => ts('Select Invoice Template'),
