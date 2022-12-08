@@ -1,0 +1,5 @@
+<?php
+
+class CRM_Multicompanyaccounting_BAO_BatchOwnerOrganisation extends CRM_Multicompanyaccounting_DAO_BatchOwnerOrganisation {
+
+}
