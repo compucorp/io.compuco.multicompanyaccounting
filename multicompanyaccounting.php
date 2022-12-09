@@ -138,3 +138,20 @@ function multicompanyaccounting_civicrm_entityTypes(&$entityTypes) {
 function multicompanyaccounting_civicrm_themes(&$themes) {
   _multicompanyaccounting_civix_civicrm_themes($themes);
 }
+
+/**
+ * Implements hook_civicrm_navigationMenu().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu/
+ */
+function multicompanyaccounting_civicrm_navigationMenu(&$menu) {
+  $companyMenuItem = [
+    'name' => 'multicompanyaccounting_company',
+    'label' => ts('Companies (Multi-company accounting)'),
+    'url' => 'civicrm/admin/multicompanyaccounting/company',
+    'permission' => 'administer CiviCRM',
+    'separator' => 2,
+  ];
+
+  _membershipextras_civix_insert_navigation_menu($menu, 'Administer/CiviContribute', $companyMenuItem);
+}
