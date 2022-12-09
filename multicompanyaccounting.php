@@ -155,3 +155,10 @@ function multicompanyaccounting_civicrm_navigationMenu(&$menu) {
 
   _membershipextras_civix_insert_navigation_menu($menu, 'Administer/CiviContribute', $companyMenuItem);
 }
+
+function multicompanyaccounting_civicrm_post(string $op, string $objectName, int $objectId, &$objectRef) {
+  if ($objectName === 'Contribution' && $op === 'create') {
+    $hook = new CRM_Multicompanyaccounting_Hook_Post_ContributionCreation($objectId);
+    $hook->run();
+  }
+}
