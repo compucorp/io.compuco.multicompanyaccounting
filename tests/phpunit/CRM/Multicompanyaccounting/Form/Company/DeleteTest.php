@@ -18,6 +18,7 @@ class CRM_Multicompanyaccounting_Form_Company_DeleteTest extends BaseHeadlessTes
 
     $_REQUEST['id'] = $company->id;
     $this->submitForm([]);
+    unset($_REQUEST['id']);
 
     $company = new CRM_Multicompanyaccounting_DAO_Company();
     $company->contact_id = 1;

@@ -86,6 +86,7 @@ class CRM_Multicompanyaccounting_Form_Company_AddTest extends BaseHeadlessTest {
     $params['invoice_prefix'] = 'XYZ';
     $params['next_invoice_number'] = '000025';
     $this->submitForm($params);
+    unset($_REQUEST['id']);
 
     $company = new CRM_Multicompanyaccounting_DAO_Company();
     $company->contact_id = 1;
