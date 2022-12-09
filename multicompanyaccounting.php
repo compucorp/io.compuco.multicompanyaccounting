@@ -162,3 +162,18 @@ function multicompanyaccounting_civicrm_post(string $op, string $objectName, int
     $hook->run();
   }
 }
+
+function multicompanyaccounting_civicrm_buildForm($formName, &$form) {
+  $addOrUpdate = ($form->getAction() & CRM_Core_Action::ADD) || ($form->getAction() & CRM_Core_Action::UPDATE);
+  if ($formName == 'CRM_Financial_Form_FinancialBatch' && $addOrUpdate) {
+    $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_FinancialBatch($form);
+    $hook->run();
+  }
+}
+
+function multicompanyaccounting_civicrm_postProcess($formName, $form) {
+  if ($formName == 'CRM_Financial_Form_FinancialBatch') {
+    $hook = new CRM_Multicompanyaccounting_Hook_PostProcess_FinancialBatch($form);
+    $hook->run();
+  }
+}
