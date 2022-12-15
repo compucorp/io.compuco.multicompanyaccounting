@@ -12,6 +12,8 @@ use CRM_Multicompanyaccounting_ExtensionUtil as E;
  */
 function multicompanyaccounting_civicrm_config(&$config) {
   _multicompanyaccounting_civix_civicrm_config($config);
+
+  Civi::dispatcher()->addListener('civi.api.prepare', ['CRM_Multicompanyaccounting_Hook_Config_APIWrapper_BatchListPage', 'preApiCall']);
 }
 
 /**
@@ -174,6 +176,11 @@ function multicompanyaccounting_civicrm_buildForm($formName, &$form) {
     $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_BatchTransaction($form);
     $hook->run();
   }
+
+  if ($formName == 'CRM_Financial_Form_Search') {
+    $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_FinancialBatchSearch($form);
+    $hook->run();
+  }
 }
 
 function multicompanyaccounting_civicrm_postProcess($formName, $form) {
@@ -187,5 +194,13 @@ function multicompanyaccounting_civicrm_alterContent(&$content, $context, $tplNa
   if ($tplName == 'CRM/Financial/Page/BatchTransaction.tpl') {
     $hook = new CRM_Multicompanyaccounting_Hook_AlterContent_BatchTransaction($content);
     $hook->run();
+  }
+}
+
+function multicompanyaccounting_civicrm_selectWhereClause($entity, &$clauses) {
+  $ownerOrganisationToFilterIds = CRM_Utils_Request::retrieve('multicompanyaccounting_owner_org_id', 'CommaSeparatedIntegers');
+  if ($entity == 'Batch' && !empty($ownerOrganisationToFilterIds)) {
+    $hook = new CRM_Multicompanyaccounting_Hook_SelectWhereClause_BatchList($clauses);
+    $hook->filterBasedOnOwnerOrganisations($ownerOrganisationToFilterIds);
   }
 }
