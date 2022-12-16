@@ -181,6 +181,11 @@ function multicompanyaccounting_civicrm_buildForm($formName, &$form) {
     $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_FinancialBatchSearch($form);
     $hook->run();
   }
+
+  if ($formName == 'CRM_Financial_Form_FinancialAccount') {
+    $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_FinancialAccount($form);
+    $hook->run();
+  }
 }
 
 function multicompanyaccounting_civicrm_postProcess($formName, $form) {
