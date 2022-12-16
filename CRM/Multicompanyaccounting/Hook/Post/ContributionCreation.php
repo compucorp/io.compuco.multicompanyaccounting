@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Multicompanyaccounting_CustomGroup_ContributionOwnerOrganisation as ContributionOwnerOrganisation;
+
 class CRM_Multicompanyaccounting_Hook_Post_ContributionCreation {
 
   private $contributionId;
@@ -15,10 +17,7 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreation {
   private function updateOwnerOrganization() {
     $ownerOrganizationId = $this->getOwnerOrganizationId();
     if (!empty($ownerOrganizationId)) {
-      $updateQuery = "INSERT INTO civicrm_value_multicompanyaccounting_ownerorg (entity_id, owner_organization)
-                    VALUES ({$this->contributionId}, {$ownerOrganizationId})
-                    ON DUPLICATE KEY UPDATE owner_organization = {$ownerOrganizationId}";
-      CRM_Core_DAO::executeQuery($updateQuery);
+      ContributionOwnerOrganisation::setOwnerOrganisation($this->contributionId, $ownerOrganizationId);
     }
   }
 
