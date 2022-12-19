@@ -56,6 +56,7 @@ class CRM_Multicompanyaccounting_Hook_AlterMailParams_InvoiceTemplate {
 
     $replacementParams = [
       'domain_organization' => $this->contributionOwnerCompany['name'],
+      'domain_logo' => CRM_Utils_Array::value('logo_url', $this->contributionOwnerCompany, ''),
       'domain_street_address' => CRM_Utils_Array::value('street_address', CRM_Utils_Array::value('1', $ownerOrganisationLocation['address'])),
       'domain_supplemental_address_1' => CRM_Utils_Array::value('supplemental_address_1', CRM_Utils_Array::value('1', $ownerOrganisationLocation['address'])),
       'domain_supplemental_address_2' => CRM_Utils_Array::value('supplemental_address_2', CRM_Utils_Array::value('1', $ownerOrganisationLocation['address'])),

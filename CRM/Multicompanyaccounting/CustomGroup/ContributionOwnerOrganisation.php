@@ -24,7 +24,7 @@ class CRM_Multicompanyaccounting_CustomGroup_ContributionOwnerOrganisation {
    * @return array
    */
   public static function getOwnerOrganisationCompany($contributionId) {
-    $OwnerOrgQuery = "SELECT contact.organization_name as name, company.* FROM civicrm_contribution cont
+    $OwnerOrgQuery = "SELECT contact.organization_name as name, contact.image_URL as logo_url, company.* FROM civicrm_contribution cont
                       INNER JOIN civicrm_value_multicompanyaccounting_ownerorg cont_ownerorg ON cont.id = cont_ownerorg.entity_id
                       INNER JOIN multicompanyaccounting_company company ON cont_ownerorg.owner_organization = company.contact_id
                       INNER JOIN civicrm_contact contact ON company.contact_id = contact.id
