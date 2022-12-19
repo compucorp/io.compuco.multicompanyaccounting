@@ -14,4 +14,12 @@ abstract class BaseHeadlessTest extends \PHPUnit\Framework\TestCase implements
       ->apply();
   }
 
+  public function createOrganization($orgName) {
+    return civicrm_api3('Contact', 'create', [
+      'sequential' => 1,
+      'contact_type' => 'Organization',
+      'organization_name' => $orgName,
+    ])['values'][0];
+  }
+
 }

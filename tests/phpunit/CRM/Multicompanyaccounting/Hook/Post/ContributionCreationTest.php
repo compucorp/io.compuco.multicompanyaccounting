@@ -68,14 +68,6 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreationTest extends Base
     $this->assertEquals($secondOrg['id'], $contributionOwnerOrgId);
   }
 
-  private function createOrganization($orgName) {
-    return civicrm_api3('Contact', 'create', [
-      'sequential' => 1,
-      'contact_type' => 'Organization',
-      'organization_name' => $orgName,
-    ])['values'][0];
-  }
-
   private function updateFinancialAccountOwner($accountName, $newOwnerId) {
     return civicrm_api3('FinancialAccount', 'get', [
       'sequential' => 1,

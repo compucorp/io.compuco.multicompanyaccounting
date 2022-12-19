@@ -158,6 +158,22 @@ function multicompanyaccounting_civicrm_navigationMenu(&$menu) {
   _membershipextras_civix_insert_navigation_menu($menu, 'Administer/CiviContribute', $companyMenuItem);
 }
 
+/**
+ * Implements hook_civicrm_alterMailParams().
+ */
+function multicompanyaccounting_civicrm_alterMailParams(&$params, $context) {
+  // 'contribution_invoice_receipt' is CiviCRM standard invoice template
+  if (empty($params['valueName']) || $params['valueName'] != 'contribution_invoice_receipt') {
+    return;
+  }
+
+  $hook = new CRM_Multicompanyaccounting_Hook_AlterMailParams_InvoiceTemplate($params);
+  $hook->run();
+}
+
+/**
+ * Implements hook_civicrm_post().
+ */
 function multicompanyaccounting_civicrm_post(string $op, string $objectName, int $objectId, &$objectRef) {
   if ($objectName === 'Contribution' && $op === 'create') {
     $hook = new CRM_Multicompanyaccounting_Hook_Post_ContributionCreation($objectId);
@@ -165,6 +181,9 @@ function multicompanyaccounting_civicrm_post(string $op, string $objectName, int
   }
 }
 
+/**
+ * Implements hook_civicrm__buildForm().
+ */
 function multicompanyaccounting_civicrm_buildForm($formName, &$form) {
   $addOrUpdate = ($form->getAction() & CRM_Core_Action::ADD) || ($form->getAction() & CRM_Core_Action::UPDATE);
   if ($formName == 'CRM_Financial_Form_FinancialBatch' && $addOrUpdate) {
@@ -183,6 +202,9 @@ function multicompanyaccounting_civicrm_buildForm($formName, &$form) {
   }
 }
 
+/**
+ * Implements hook_civicrm_postProcess().
+ */
 function multicompanyaccounting_civicrm_postProcess($formName, $form) {
   if ($formName == 'CRM_Financial_Form_FinancialBatch') {
     $hook = new CRM_Multicompanyaccounting_Hook_PostProcess_FinancialBatch($form);
@@ -190,6 +212,9 @@ function multicompanyaccounting_civicrm_postProcess($formName, $form) {
   }
 }
 
+/**
+ * Implements hook_civicrm_alterContent().
+ */
 function multicompanyaccounting_civicrm_alterContent(&$content, $context, $tplName, &$object) {
   if ($tplName == 'CRM/Financial/Page/BatchTransaction.tpl') {
     $hook = new CRM_Multicompanyaccounting_Hook_AlterContent_BatchTransaction($content);
@@ -197,6 +222,9 @@ function multicompanyaccounting_civicrm_alterContent(&$content, $context, $tplNa
   }
 }
 
+/**
+ * Implements hook_civicrm_selectWhereClause().
+ */
 function multicompanyaccounting_civicrm_selectWhereClause($entity, &$clauses) {
   $ownerOrganisationToFilterIds = CRM_Utils_Request::retrieve('multicompanyaccounting_owner_org_id', 'CommaSeparatedIntegers');
   if ($entity == 'Batch' && !empty($ownerOrganisationToFilterIds)) {
