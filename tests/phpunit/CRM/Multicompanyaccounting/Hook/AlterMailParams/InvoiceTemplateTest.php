@@ -74,6 +74,7 @@ class CRM_Multicompanyaccounting_Hook_AlterMailParams_InvoiceTemplateTest extend
 
     $expectedParams = [
       'domain_organization' => 'testorg1',
+      'domain_logo' => '',
       'domain_street_address' => 'teststreet',
       'domain_supplemental_address_1' => 'testsupp1',
       'domain_supplemental_address_2' => 'testsupp2',
@@ -86,6 +87,33 @@ class CRM_Multicompanyaccounting_Hook_AlterMailParams_InvoiceTemplateTest extend
       'domain_phone' => '079000005',
     ];
     $this->assertEquals($expectedParams, $templateParams['tplParams']);
+  }
+
+  public function testDomainLogoTokenWillResolveToTheOrganisationImageURL() {
+    $fakeOrganisationImageURL = 'https://example.com/test1/test2/image.png';
+    $organization = civicrm_api3('Contact', 'create', [
+      'sequential' => 1,
+      'contact_type' => 'Organization',
+      'organization_name' => 'testorg1',
+      'image_URL' => $fakeOrganisationImageURL,
+    ])['values'][0];
+    $orgOneInvoiceTemplateId = $this->createMessageTemplate('testorg1');
+
+    $orgOneCompany = CRM_Multicompanyaccounting_BAO_Company::create(['contact_id' => $organization['id'], 'invoice_template_id' => $orgOneInvoiceTemplateId]);
+    $firstOrgContribution = civicrm_api3('Contribution', 'create', [
+      'financial_type_id' => 'Donation',
+      'receive_date' => '2022-11-11',
+      'total_amount' => 100,
+      'contact_id' => 1,
+    ]);
+    CRM_Multicompanyaccounting_CustomGroup_ContributionOwnerOrganisation::setOwnerOrganisation($firstOrgContribution['id'], $orgOneCompany->contact_id);
+
+    $templateParams['tplParams'] = NULL;
+    $templateParams['tplParams']['id'] = $firstOrgContribution['id'];
+    $alterInvoiceParams = new CRM_Multicompanyaccounting_Hook_AlterMailParams_InvoiceTemplate($templateParams);
+    $alterInvoiceParams->run();
+
+    $this->assertEquals($fakeOrganisationImageURL, $templateParams['tplParams']['domain_logo']);
   }
 
   private function createMessageTemplate($invoiceName) {
