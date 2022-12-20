@@ -254,4 +254,8 @@ function multicompanyaccounting_civicrm_validateForm($formName, &$fields, &$file
       $membershipType->validate();
     }
   }
+  if ($formName === 'CRM_Financial_Form_FinancialTypeAccount') {
+    $membershipType = new CRM_Multicompanyaccounting_Hook_ValidateForm_FinancialTypeAccount($form, $errors, $fields);
+    $membershipType->validate();
+  }
 }
