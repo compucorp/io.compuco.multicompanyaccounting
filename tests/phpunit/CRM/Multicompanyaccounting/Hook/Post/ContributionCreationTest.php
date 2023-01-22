@@ -5,13 +5,21 @@
  */
 class CRM_Multicompanyaccounting_Hook_Post_ContributionCreationTest extends BaseHeadlessTest {
 
+  private $firstCompany;
+
+  private $secondCompany;
+
+  public function setUp() {
+    // Both "Donation" And "Member Dues" are financial types that are shipped with the test
+    // database by default, and their income account has the same name.
+    $this->firstCompany = $this->createCompany(1);
+    $this->updateFinancialAccountOwner('Donation', $this->firstCompany['contact_id']);
+
+    $this->secondCompany = $this->createCompany(2);
+    $this->updateFinancialAccountOwner('Member Dues', $this->secondCompany['contact_id']);
+  }
+
   public function testOwnerOrganizationIsSetToFirstLineItemIncomeAccountOwner() {
-    $firstOrg = $this->createOrganization('testorg1');
-    $firstFinancialType = $this->updateFinancialAccountOwner('Donation', $firstOrg['id']);
-
-    $secondOrg = $this->createOrganization('testorg2');
-    $secondFinancialType = $this->updateFinancialAccountOwner('Member Dues', $secondOrg['id']);
-
     $params = [
       'price_field_id' => 1,
       'label' => 'Price Field 2',
@@ -23,6 +31,8 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreationTest extends Base
     // Creating order with two line items,
     // where each line item has different
     // financial_type_id
+    $donationFinancialTypeId = 1;
+    $memberDuesFinancialTypeId = 2;
     $orderParams = [
       'contact_id' => 1,
       'financial_type_id' => 'Donation',
@@ -38,7 +48,7 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreationTest extends Base
               'qty' => 1,
               'unit_price' => '100',
               'line_total' => '100',
-              'financial_type_id' => $secondFinancialType['id'],
+              'financial_type_id' => $memberDuesFinancialTypeId,
               'entity_table' => 'civicrm_contribution',
             ],
           ],
@@ -53,7 +63,7 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreationTest extends Base
               'qty' => 1,
               'unit_price' => '100',
               'line_total' => '100',
-              'financial_type_id' => $firstFinancialType['id'],
+              'financial_type_id' => $donationFinancialTypeId,
               'entity_table' => 'civicrm_contribution',
             ],
           ],
@@ -63,30 +73,42 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreationTest extends Base
     $order = civicrm_api3('Order', 'create', $orderParams);
 
     $contributionId = key($order['values']);
-    $contributionOwnerOrgId = $this->getContributionOwnerOrgId($contributionId);
+    $contributionOwnerCompany = CRM_Multicompanyaccounting_CustomGroup_ContributionOwnerOrganisation::getOwnerOrganisationCompany($contributionId);
 
-    $this->assertEquals($secondOrg['id'], $contributionOwnerOrgId);
+    $this->assertEquals($this->secondCompany['contact_id'], $contributionOwnerCompany['contact_id']);
   }
 
-  private function updateFinancialAccountOwner($accountName, $newOwnerId) {
-    return civicrm_api3('FinancialAccount', 'get', [
-      'sequential' => 1,
-      'name' => $accountName,
-      'api.FinancialAccount.create' => ['id' => '$value.id', 'contact_id' => $newOwnerId],
-    ])['values'][0];
-  }
-
-  private function getContributionOwnerOrgId($contributionId) {
-    $ownerOrgCgId = civicrm_api3('CustomField', 'getvalue', [
-      'return' => 'id',
-      'custom_group_id' => 'multicompanyaccounting_contribution_owner',
-      'name' => 'owner_organization',
+  public function testOwnerOrganizationIsSetBasedOnTheContributionFinancialTypeIncomeAccountIfNoLineItemsExist() {
+    $contribution = civicrm_api3('Contribution', 'create', [
+      'financial_type_id' => 'Member Dues',
+      'receive_date' => '2023-01-01',
+      'total_amount' => 100,
+      'contact_id' => 1,
     ]);
+    $contributionId = key($contribution['values']);
+    $contributionOwnerCompany = CRM_Multicompanyaccounting_CustomGroup_ContributionOwnerOrganisation::getOwnerOrganisationCompany($contributionId);
 
-    return civicrm_api3('Contribution', 'getvalue', [
-      'return' => "custom_$ownerOrgCgId",
+    $this->assertEquals($this->secondCompany['contact_id'], $contributionOwnerCompany['contact_id']);
+  }
+
+  public function testContributionInvoiceNumberIsSetToCompanyNextInvoiceNumber() {
+    $contribution = civicrm_api3('Contribution', 'create', [
+      'financial_type_id' => 'Member Dues',
+      'receive_date' => '2023-01-01',
+      'total_amount' => 100,
+      'contact_id' => 1,
+    ]);
+    $contributionId = key($contribution['values']);
+
+    $contributionInvoiceNumber = civicrm_api3('Contribution', 'getvalue', [
+      'return' => 'invoice_number',
       'id' => $contributionId,
     ]);
+
+    $this->assertEquals('INV2_000002', $contributionInvoiceNumber);
+
+    $company = CRM_Multicompanyaccounting_BAO_Company::getById($this->secondCompany['id']);
+    $this->assertEquals('000003', $company->next_invoice_number);
   }
 
 }
