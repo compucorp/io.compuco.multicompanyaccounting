@@ -243,7 +243,15 @@ function multicompanyaccounting_civicrm_selectWhereClause($entity, &$clauses) {
  */
 function multicompanyaccounting_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
   if (in_array($formName, ['CRM_Price_Form_Field', 'CRM_Price_Form_Option'])) {
-    $membershipType = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField($form, $fields, $errors);
+    $parentPriceSetId = CRM_Utils_Request::retrieve('sid', 'Positive');
+    $membershipType = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField($fields, $errors, $parentPriceSetId);
     $membershipType->validate();
+  }
+
+  if ($formName == 'CRM_Event_Form_ManageEvent_Fee') {
+    if (!empty($fields['price_set_id'])) {
+      $membershipType = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField($fields, $errors, $fields['price_set_id']);
+      $membershipType->validate();
+    }
   }
 }

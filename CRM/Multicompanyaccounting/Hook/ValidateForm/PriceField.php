@@ -5,14 +5,14 @@
  */
 class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField {
 
-  private $form;
   private $fields;
   private $errors;
+  private $priceSetId;
 
-  public function __construct(&$form, &$fields, &$errors) {
-    $this->form = $form;
+  public function __construct(&$fields, &$errors, $priceSetId) {
     $this->fields = &$fields;
     $this->errors = &$errors;
+    $this->priceSetId = $priceSetId;
   }
 
   public function validate() {
@@ -85,10 +85,9 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField {
    * @return string|null
    */
   private function getPriceSetOwnerOrganization() {
-    $priceSetId = CRM_Utils_Request::retrieve('sid', 'Positive');
     $priceSetFinancialTypeId = civicrm_api3('PriceSet', 'getvalue', [
       'return' => 'financial_type_id',
-      'id' => $priceSetId,
+      'id' => $this->priceSetId,
     ]);
 
     return $this->getFinancialTypesOwnerOrganizationIds($priceSetFinancialTypeId)[0];
