@@ -237,3 +237,13 @@ function multicompanyaccounting_civicrm_selectWhereClause($entity, &$clauses) {
     $hook->filterBasedOnOwnerOrganisations($ownerOrganisationToFilterIds);
   }
 }
+
+/**
+ * Implements hook_civicrm_validateForm().
+ */
+function multicompanyaccounting_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+  if (in_array($formName, ['CRM_Price_Form_Field', 'CRM_Price_Form_Option'])) {
+    $membershipType = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField($form, $fields, $errors);
+    $membershipType->validate();
+  }
+}
