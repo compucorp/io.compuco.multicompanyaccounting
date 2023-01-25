@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Form Validation on adding/editing price field or price field option.
+ * Owner Organization Form Validation
  */
-class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField {
+class CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator {
 
   private $fields;
   private $errors;
@@ -22,7 +22,7 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField {
   /**
    * Validates if the owner organization of the income
    * account for the selected financial type(s), match
-   * the owner of the income account for the parent
+   * the owner of the income account for the
    * price set financial type.
    *
    * @return void

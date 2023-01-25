@@ -3,7 +3,7 @@
 /**
  * @group headless
  */
-class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceFieldTest extends BaseHeadlessTest {
+class CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidatorTest extends BaseHeadlessTest {
 
   private $testPriceSetId;
 
@@ -36,20 +36,18 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceFieldTest extends BaseHe
   }
 
   public function testCreatingTextPriceFieldWithOwnerAccountMatchesThePriceSetWillPassValidation() {
-    $form = NULL;
     $fields = [];
     $errors = [];
 
     $fields['html_type'] = 'Text';
     $fields['financial_type_id'] = $this->memberDuesFinancialTypeId;
 
-    $hook = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField($fields, $errors, $this->testPriceSetId);
+    $hook = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $this->testPriceSetId);
     $hook->validate();
     $this->assertEmpty($errors);
   }
 
   public function testCreatingTextPriceFieldWithOwnerAccountNotMatchingThePriceSetWillFailValidation() {
-    $form = NULL;
     $fields = [];
     $errors = [];
 
@@ -58,13 +56,12 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceFieldTest extends BaseHe
     $this->updateFinancialAccountOwner('Member Dues', $secondOwnerOrgId);
     $fields['financial_type_id'] = $this->memberDuesFinancialTypeId;
 
-    $hook = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField($fields, $errors, $this->testPriceSetId);
+    $hook = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $this->testPriceSetId);
     $hook->validate();
     $this->assertNotEmpty($errors['financial_type_id']);
   }
 
   public function testCreatingMultiOptionsPriceFieldWithOwnerAccountsMatchesThePriceSetWillPassValidation() {
-    $form = NULL;
     $fields = [];
     $errors = [];
 
@@ -75,13 +72,12 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceFieldTest extends BaseHe
     $fields['option_label'][2] = 'test2';
     $fields['option_financial_type_id'][2] = $this->memberDuesFinancialTypeId;
 
-    $hook = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField($fields, $errors, $this->testPriceSetId);
+    $hook = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $this->testPriceSetId);
     $hook->validate();
     $this->assertEmpty($errors);
   }
 
   public function testCreatingMultiOptionsPriceFieldWithOwnerAccountsNotMatchingThePriceSetWillFailValidation() {
-    $form = NULL;
     $fields = [];
     $errors = [];
 
@@ -95,7 +91,7 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceFieldTest extends BaseHe
     $fields['option_label'][2] = 'test2';
     $fields['option_financial_type_id'][2] = $this->memberDuesFinancialTypeId;
 
-    $hook = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField($fields, $errors, $this->testPriceSetId);
+    $hook = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $this->testPriceSetId);
     $hook->validate();
     $this->assertNotEmpty($errors['financial_type_id']);
   }
