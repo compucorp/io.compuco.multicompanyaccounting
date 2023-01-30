@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Form Validation on adding/editing price field or price field option.
+ * Owner Organization Form Validation
  */
-class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField {
+class CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator {
 
-  private $form;
   private $fields;
   private $errors;
+  private $priceSetId;
 
-  public function __construct(&$form, &$fields, &$errors) {
-    $this->form = $form;
+  public function __construct(&$fields, &$errors, $priceSetId) {
     $this->fields = &$fields;
     $this->errors = &$errors;
+    $this->priceSetId = $priceSetId;
   }
 
   public function validate() {
@@ -22,7 +22,7 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField {
   /**
    * Validates if the owner organization of the income
    * account for the selected financial type(s), match
-   * the owner of the income account for the parent
+   * the owner of the income account for the
    * price set financial type.
    *
    * @return void
@@ -85,10 +85,9 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_PriceField {
    * @return string|null
    */
   private function getPriceSetOwnerOrganization() {
-    $priceSetId = CRM_Utils_Request::retrieve('sid', 'Positive');
     $priceSetFinancialTypeId = civicrm_api3('PriceSet', 'getvalue', [
       'return' => 'financial_type_id',
-      'id' => $priceSetId,
+      'id' => $this->priceSetId,
     ]);
 
     return $this->getFinancialTypesOwnerOrganizationIds($priceSetFinancialTypeId)[0];
