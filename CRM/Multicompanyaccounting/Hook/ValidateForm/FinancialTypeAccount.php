@@ -35,30 +35,30 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_FinancialTypeAccount {
     $existingFinancialAccountsData = $this->getExistingFinancialTypeAccountsCountAndOwner($financialTypeId);
     $selectedFinancialAccountOwnerOrganisationId = $this->getSelectedFinancialAccountOwnerOrganisationId();
 
-    // Allowing changing the owner organisation if there is only one financial account.
+    // Allow changing the owner organisation if there is only one financial account.
     if ($isUpdateAction && $existingFinancialAccountsData['accounts_count'] === 1) {
       return;
     }
-    // Allow add financial account type if there is no assigned financial accounts
+    // Allow adding a financial account type if there are no financial accounts assigned
     if ($isAddAction && $existingFinancialAccountsData['accounts_count'] === 0) {
       return;
     }
 
     if ($selectedFinancialAccountOwnerOrganisationId !== $existingFinancialAccountsData['owner_organisation_id']) {
-      $this->errors['financial_account_id'] = ts('You cannot have multiple Owner for a Financial Type');
+      $this->errors['financial_account_id'] = ts('You cannot have multiple Owners for a Financial Type');
     }
   }
 
   /**
    * Gets the Financial Accounts based on financial type id sent by the form
    */
-  private function getExistingFinancialTypeAccountsCountAndOwner($financial_type_id) {
+  private function getExistingFinancialTypeAccountsCountAndOwner($financialTypeId) {
     $result = \Civi\Api4\EntityFinancialAccount::get()
       ->addSelect('COUNT(*) AS count', 'financial_account.contact_id')
       ->setJoin([['FinancialAccount AS financial_account', 'INNER', NULL, ['financial_account_id', '=', 'financial_account.id']]])
       ->setGroupBy(['financial_account.contact_id'])
       ->addWhere('entity_table', '=', 'civicrm_financial_type')
-      ->addWhere('entity_id', '=', $financial_type_id)
+      ->addWhere('entity_id', '=', $financialTypeId)
       ->execute()
       ->first();
 
