@@ -26,6 +26,7 @@ class CRM_Multicompanyaccounting_Hook_BuildForm_FinancialAccount {
     $element->setAttribute('data-api-params', json_encode([
       'search_field' => 'contact_id.organization_name',
       'label_field' => 'contact_id.organization_name',
+      'id_field' => 'contact_id',
     ]));
     $element->setAttribute('data-select-params', json_encode(['minimumInputLength' => 0]));
   }
