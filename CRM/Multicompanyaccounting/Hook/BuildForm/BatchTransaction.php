@@ -27,6 +27,9 @@ class CRM_Multicompanyaccounting_Hook_BuildForm_BatchTransaction {
     }
 
     $batchOwnerOrganisationIds = CRM_Multicompanyaccounting_BAO_BatchOwnerOrganisation::getByBatchId($batchId);
+    if (empty($batchOwnerOrganisationIds)) {
+      return;
+    }
 
     $fieldName = 'custom_' . $this->getContributionOwnerOrganisationFieldId();
     $defaults[$fieldName] = $batchOwnerOrganisationIds;
