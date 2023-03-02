@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationRetriever as OwnerOrganizationRetriever;
+
 /**
  * Owner Organization Form Validation
  */
@@ -50,7 +52,7 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator {
       return [];
     }
 
-    return $this->getFinancialTypesOwnerOrganizationIds($selectedFinancialTypes);
+    return OwnerOrganizationRetriever::getFinancialTypesOwnerOrganizationIds($selectedFinancialTypes);
   }
 
   /**
@@ -58,7 +60,7 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator {
    * that are selected by the user
    * on the form.
    *
-   * @return string
+   * @return array
    */
   private function getSelectedFinancialTypes() {
     $selectedFinancialTypes = [];
@@ -73,7 +75,7 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator {
       $selectedFinancialTypes = [$this->fields['financial_type_id']];
     }
 
-    return implode(',', array_unique($selectedFinancialTypes));
+    return $selectedFinancialTypes;
   }
 
   /**
@@ -90,22 +92,7 @@ class CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator {
       'id' => $this->priceSetId,
     ]);
 
-    return $this->getFinancialTypesOwnerOrganizationIds($priceSetFinancialTypeId)[0];
-  }
-
-  private function getFinancialTypesOwnerOrganizationIds($financialTypes) {
-    $orgIds = [];
-
-    $incomeAccountRelationId = key(CRM_Core_PseudoConstant::accountOptionValues('account_relationship', NULL, " AND v.name LIKE 'Income Account is' "));
-    $query = "SELECT fa.contact_id FROM civicrm_entity_financial_account efa
-              INNER JOIN civicrm_financial_account fa ON efa.financial_account_id = fa.id
-              WHERE efa.entity_id IN ({$financialTypes}) AND efa.entity_table = 'civicrm_financial_type' AND efa.account_relationship = {$incomeAccountRelationId}";
-    $results = CRM_Core_DAO::executeQuery($query);
-    while ($results->fetch()) {
-      $orgIds[] = $results->contact_id;
-    }
-
-    return array_unique($orgIds);
+    return OwnerOrganizationRetriever::getFinancialTypesOwnerOrganizationIds([$priceSetFinancialTypeId])[0];
   }
 
 }
