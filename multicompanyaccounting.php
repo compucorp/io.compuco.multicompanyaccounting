@@ -244,18 +244,25 @@ function multicompanyaccounting_civicrm_selectWhereClause($entity, &$clauses) {
 function multicompanyaccounting_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
   if (in_array($formName, ['CRM_Price_Form_Field', 'CRM_Price_Form_Option'])) {
     $parentPriceSetId = CRM_Utils_Request::retrieve('sid', 'Positive');
-    $membershipType = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $parentPriceSetId);
-    $membershipType->validate();
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $parentPriceSetId);
+    $formValidator->validate();
   }
 
   if ($formName == 'CRM_Event_Form_ManageEvent_Fee') {
     if (!empty($fields['price_set_id'])) {
-      $membershipType = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $fields['price_set_id']);
-      $membershipType->validate();
+      $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $fields['price_set_id']);
+      $formValidator->validate();
     }
   }
+
+  if ($formName == 'CRM_Price_Form_Set' && ($form->getAction() & CRM_Core_Action::UPDATE)) {
+    $priceSetId = $form->getEntityId();
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceSetValidator($fields, $errors, $priceSetId);
+    $formValidator->validate();
+  }
+
   if ($formName === 'CRM_Financial_Form_FinancialTypeAccount') {
-    $membershipType = new CRM_Multicompanyaccounting_Hook_ValidateForm_FinancialTypeAccount($form, $errors, $fields);
-    $membershipType->validate();
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_FinancialTypeAccount($form, $errors, $fields);
+    $formValidator->validate();
   }
 }
