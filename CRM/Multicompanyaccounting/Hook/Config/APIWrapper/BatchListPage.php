@@ -36,7 +36,7 @@ class CRM_Multicompanyaccounting_Hook_Config_APIWrapper_BatchListPage {
    * @param array $apiRequest
    * @param array $callsame
    */
-  public function enforcePermissionCheck(&$apiRequest, $callsame) {
+  public static function enforcePermissionCheck(&$apiRequest, $callsame) {
     $apiRequest['params']['check_permissions'] = 1;
 
     return $callsame($apiRequest);
