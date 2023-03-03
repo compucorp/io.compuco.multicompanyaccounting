@@ -169,6 +169,7 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreation {
    * Calculates and stores the contribution invoice
    * number.
    * The invoice number is calculated as the following:
+   *
    * 1- Using the contribution owner organization, we get
    * its related Company record, which contains the invoice
    * prefix and next invoice number. The value is read using
@@ -183,7 +184,7 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreation {
    * will be the contribution invoice number.
    *
    * 3- Then the next invoice number is incremented by one
-   * while padding zeros are preserved.
+   * while leading zeros are preserved.
    *
    * 4- Finally the contribution invoice_number is set
    * to the invoice number in from step 2.
@@ -203,10 +204,35 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreation {
       $invoiceNumber = $companyRecord->invoice_prefix . $companyRecord->next_invoice_number;
     }
 
-    $invoiceNumberCharCount = strlen($companyRecord->next_invoice_number);
-    CRM_Core_DAO::executeQuery("UPDATE multicompanyaccounting_company SET next_invoice_number = LPAD((next_invoice_number + 1), {$invoiceNumberCharCount}, '0')  WHERE contact_id = {$this->ownerOrganizationId}");
+    $invoiceUpdateSQLFormula = $this->getInvoiceNumberUpdateSQLFormula($companyRecord->next_invoice_number);
+    CRM_Core_DAO::executeQuery("UPDATE multicompanyaccounting_company SET next_invoice_number = {$invoiceUpdateSQLFormula}  WHERE contact_id = {$this->ownerOrganizationId}");
 
     CRM_Core_DAO::executeQuery("UPDATE civicrm_contribution SET invoice_number = '{$invoiceNumber}' WHERE id = {$this->contributionId}");
+  }
+
+  /**
+   * Gets the SQL formula to update the invoice
+   * number, where if the invoice starts with
+   * a zero, then it means it has a leading zero(s)
+   * and thus they should be respected, or otherwise
+   * the invoice number would be incremented
+   * normally.
+   *
+   * @param $invoiceNumberNumericPart
+   * @return string
+   */
+  private function getInvoiceNumberUpdateSQLFormula($invoiceNumberNumericPart) {
+    $firstZeroLocation = strpos($invoiceNumberNumericPart, '0');
+    $isThereLeadingZero = $firstZeroLocation === 0;
+    if ($isThereLeadingZero) {
+      $invoiceNumberCharCount = strlen($invoiceNumberNumericPart);
+      $invoiceUpdateFormula = "LPAD((next_invoice_number + 1), {$invoiceNumberCharCount}, '0')";
+    }
+    else {
+      $invoiceUpdateFormula = "(next_invoice_number + 1)";
+    }
+
+    return $invoiceUpdateFormula;
   }
 
 }
