@@ -106,9 +106,61 @@ class CRM_Multicompanyaccounting_Hook_Post_ContributionCreationTest extends Base
     ]);
 
     $this->assertEquals('INV2_000002', $contributionInvoiceNumber);
+  }
+
+  /**
+   * @dataProvider withLeadingZerosInvoiceNumbersProvider
+   */
+  public function testIncrementedInvoiceNumberRespectsLeadingZeros($currentNextInvoiceNumber, $newNextInvoiceNumber) {
+    CRM_Multicompanyaccounting_BAO_Company::create(['id' => $this->secondCompany['id'], 'next_invoice_number' => $currentNextInvoiceNumber]);
+
+    civicrm_api3('Contribution', 'create', [
+      'financial_type_id' => 'Member Dues',
+      'receive_date' => '2023-01-01',
+      'total_amount' => 100,
+      'contact_id' => 1,
+    ]);
 
     $company = CRM_Multicompanyaccounting_BAO_Company::getById($this->secondCompany['id']);
-    $this->assertEquals('000003', $company->next_invoice_number);
+    $this->assertEquals($newNextInvoiceNumber, $company->next_invoice_number);
+  }
+
+  public function withLeadingZerosInvoiceNumbersProvider() {
+    return [
+      ['01', '02'],
+      ['09', '10'],
+      ['001', '002'],
+      ['090', '091'],
+      ['099', '100'],
+      ['0000055', '0000056'],
+    ];
+  }
+
+  /**
+   * @dataProvider noLeadingZerosInvoiceNumbersProvider
+   */
+  public function testIncrementedInvoiceNumberWouldKeepIncrementingEvenIfReachedLeadingZerosLimit($currentNextInvoiceNumber, $newNextInvoiceNumber) {
+    CRM_Multicompanyaccounting_BAO_Company::create(['id' => $this->firstCompany['id'], 'next_invoice_number' => $currentNextInvoiceNumber]);
+
+    civicrm_api3('Contribution', 'create', [
+      'financial_type_id' => 'Donation',
+      'receive_date' => '2023-01-01',
+      'total_amount' => 100,
+      'contact_id' => 1,
+    ]);
+
+    $company = CRM_Multicompanyaccounting_BAO_Company::getById($this->firstCompany['id']);
+    $this->assertEquals($newNextInvoiceNumber, $company->next_invoice_number);
+  }
+
+  public function noLeadingZerosInvoiceNumbersProvider() {
+    return [
+      ['9', '10'],
+      ['15', '16'],
+      ['99', '100'],
+      ['998', '999'],
+      ['999', '1000'],
+    ];
   }
 
 }
