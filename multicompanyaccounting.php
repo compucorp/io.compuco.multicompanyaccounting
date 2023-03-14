@@ -174,7 +174,7 @@ function multicompanyaccounting_civicrm_alterMailParams(&$params, $context) {
 /**
  * Implements hook_civicrm_post().
  */
-function multicompanyaccounting_civicrm_post(string $op, string $objectName, int $objectId, &$objectRef) {
+function multicompanyaccounting_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($objectName === 'Contribution' && $op === 'create') {
     $hook = new CRM_Multicompanyaccounting_Hook_Post_ContributionCreation($objectId);
     $hook->run();
