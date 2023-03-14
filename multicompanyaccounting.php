@@ -265,4 +265,16 @@ function multicompanyaccounting_civicrm_validateForm($formName, &$fields, &$file
     $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_FinancialTypeAccount($form, $errors, $fields);
     $formValidator->validate();
   }
+
+  if ($formName === 'CRM_Contribute_Form_Contribution' && ($form->getAction() & CRM_Core_Action::UPDATE)) {
+    $contributionId = $form->_id;
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_Contribution($contributionId, $errors, $fields);
+    $formValidator->validate();
+  }
+
+  if ($formName == 'CRM_Lineitemedit_Form_Edit') {
+    $lineItemId = $form->_id;
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_LineItemEdit($lineItemId, $errors, $fields);
+    $formValidator->validate();
+  }
 }
