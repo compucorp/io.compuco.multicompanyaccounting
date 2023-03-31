@@ -12,6 +12,8 @@ use CRM_Multicompanyaccounting_ExtensionUtil as E;
  */
 function multicompanyaccounting_civicrm_config(&$config) {
   _multicompanyaccounting_civix_civicrm_config($config);
+
+  Civi::dispatcher()->addListener('civi.api.prepare', ['CRM_Multicompanyaccounting_Hook_Config_APIWrapper_BatchListPage', 'preApiCall']);
 }
 
 /**
@@ -137,4 +139,142 @@ function multicompanyaccounting_civicrm_entityTypes(&$entityTypes) {
  */
 function multicompanyaccounting_civicrm_themes(&$themes) {
   _multicompanyaccounting_civix_civicrm_themes($themes);
+}
+
+/**
+ * Implements hook_civicrm_navigationMenu().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu/
+ */
+function multicompanyaccounting_civicrm_navigationMenu(&$menu) {
+  $companyMenuItem = [
+    'name' => 'multicompanyaccounting_company',
+    'label' => ts('Companies (Multi-company accounting)'),
+    'url' => 'civicrm/admin/multicompanyaccounting/company',
+    'permission' => 'administer CiviCRM',
+    'separator' => 2,
+  ];
+
+  _membershipextras_civix_insert_navigation_menu($menu, 'Administer/CiviContribute', $companyMenuItem);
+}
+
+/**
+ * Implements hook_civicrm_alterMailParams().
+ */
+function multicompanyaccounting_civicrm_alterMailParams(&$params, $context) {
+  // 'contribution_invoice_receipt' is CiviCRM standard invoice template
+  if (empty($params['valueName']) || $params['valueName'] != 'contribution_invoice_receipt') {
+    return;
+  }
+
+  $hook = new CRM_Multicompanyaccounting_Hook_AlterMailParams_InvoiceTemplate($params);
+  $hook->run();
+}
+
+/**
+ * Implements hook_civicrm_post().
+ */
+function multicompanyaccounting_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  if ($objectName === 'Contribution' && $op === 'create') {
+    $hook = new CRM_Multicompanyaccounting_Hook_Post_ContributionCreation($objectId);
+    $hook->run();
+  }
+}
+
+/**
+ * Implements hook_civicrm__buildForm().
+ */
+function multicompanyaccounting_civicrm_buildForm($formName, &$form) {
+  $addOrUpdate = ($form->getAction() & CRM_Core_Action::ADD) || ($form->getAction() & CRM_Core_Action::UPDATE);
+  if ($formName == 'CRM_Financial_Form_FinancialBatch' && $addOrUpdate) {
+    $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_FinancialBatch($form);
+    $hook->run();
+  }
+
+  if ($formName == 'CRM_Financial_Form_BatchTransaction') {
+    $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_BatchTransaction($form);
+    $hook->run();
+  }
+
+  if ($formName == 'CRM_Financial_Form_Search') {
+    $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_FinancialBatchSearch($form);
+    $hook->run();
+  }
+
+  if ($formName == 'CRM_Financial_Form_FinancialAccount') {
+    $hook = new CRM_Multicompanyaccounting_Hook_BuildForm_FinancialAccount($form);
+    $hook->run();
+  }
+}
+
+/**
+ * Implements hook_civicrm_postProcess().
+ */
+function multicompanyaccounting_civicrm_postProcess($formName, $form) {
+  if ($formName == 'CRM_Financial_Form_FinancialBatch') {
+    $hook = new CRM_Multicompanyaccounting_Hook_PostProcess_FinancialBatch($form);
+    $hook->run();
+  }
+}
+
+/**
+ * Implements hook_civicrm_alterContent().
+ */
+function multicompanyaccounting_civicrm_alterContent(&$content, $context, $tplName, &$object) {
+  if ($tplName == 'CRM/Financial/Page/BatchTransaction.tpl') {
+    $hook = new CRM_Multicompanyaccounting_Hook_AlterContent_BatchTransaction($content);
+    $hook->run();
+  }
+}
+
+/**
+ * Implements hook_civicrm_selectWhereClause().
+ */
+function multicompanyaccounting_civicrm_selectWhereClause($entity, &$clauses) {
+  $ownerOrganisationToFilterIds = CRM_Utils_Request::retrieve('multicompanyaccounting_owner_org_id', 'CommaSeparatedIntegers');
+  if ($entity == 'Batch' && !empty($ownerOrganisationToFilterIds)) {
+    $hook = new CRM_Multicompanyaccounting_Hook_SelectWhereClause_BatchList($clauses);
+    $hook->filterBasedOnOwnerOrganisations($ownerOrganisationToFilterIds);
+  }
+}
+
+/**
+ * Implements hook_civicrm_validateForm().
+ */
+function multicompanyaccounting_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+  if (in_array($formName, ['CRM_Price_Form_Field', 'CRM_Price_Form_Option'])) {
+    $parentPriceSetId = CRM_Utils_Request::retrieve('sid', 'Positive');
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $parentPriceSetId);
+    $formValidator->validate();
+  }
+
+  if ($formName == 'CRM_Event_Form_ManageEvent_Fee') {
+    if (!empty($fields['price_set_id'])) {
+      $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_OwnerOrganizationValidator($fields, $errors, $fields['price_set_id']);
+      $formValidator->validate();
+    }
+  }
+
+  if ($formName == 'CRM_Price_Form_Set' && ($form->getAction() & CRM_Core_Action::UPDATE)) {
+    $priceSetId = $form->getEntityId();
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_PriceSetValidator($fields, $errors, $priceSetId);
+    $formValidator->validate();
+  }
+
+  if ($formName === 'CRM_Financial_Form_FinancialTypeAccount') {
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_FinancialTypeAccount($form, $errors, $fields);
+    $formValidator->validate();
+  }
+
+  if ($formName === 'CRM_Contribute_Form_Contribution' && ($form->getAction() & CRM_Core_Action::UPDATE)) {
+    $contributionId = $form->_id;
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_Contribution($contributionId, $errors, $fields);
+    $formValidator->validate();
+  }
+
+  if ($formName == 'CRM_Lineitemedit_Form_Edit') {
+    $lineItemId = $form->_id;
+    $formValidator = new CRM_Multicompanyaccounting_Hook_ValidateForm_LineItemEdit($lineItemId, $errors, $fields);
+    $formValidator->validate();
+  }
 }

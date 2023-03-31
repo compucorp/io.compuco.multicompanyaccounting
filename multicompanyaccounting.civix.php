@@ -449,5 +449,16 @@ function _multicompanyaccounting_civix_civicrm_alterSettingsFolders(&$metaDataFo
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_entityTypes
  */
 function _multicompanyaccounting_civix_civicrm_entityTypes(&$entityTypes) {
-  $entityTypes = array_merge($entityTypes, []);
+  $entityTypes = array_merge($entityTypes, [
+    'CRM_Multicompanyaccounting_DAO_BatchOwnerOrganisation' => [
+      'name' => 'BatchOwnerOrganisation',
+      'class' => 'CRM_Multicompanyaccounting_DAO_BatchOwnerOrganisation',
+      'table' => 'multicompanyaccounting_batch_owner_org',
+    ],
+    'CRM_Multicompanyaccounting_DAO_Company' => [
+      'name' => 'Company',
+      'class' => 'CRM_Multicompanyaccounting_DAO_Company',
+      'table' => 'multicompanyaccounting_company',
+    ],
+  ]);
 }

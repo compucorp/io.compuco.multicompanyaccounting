@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/admin/multicompanyaccounting/company</path>
+    <page_callback>CRM_Multicompanyaccounting_Page_Company</page_callback>
+    <title>Company Listing</title>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/admin/multicompanyaccounting/company/add</path>
+    <page_callback>CRM_Multicompanyaccounting_Form_Company_Add</page_callback>
+    <title>Add Company</title>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/admin/multicompanyaccounting/company/delete</path>
+    <page_callback>CRM_Multicompanyaccounting_Form_Company_Delete</page_callback>
+    <title>Delete Company</title>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+</menu>
