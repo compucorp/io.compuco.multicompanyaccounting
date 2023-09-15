@@ -1,3 +1,4 @@
 # Multiple Companies Accounting for CiviCRM
 
-![ezgif-5-7a3607f644](https://user-images.githubusercontent.com/6275540/229110667-28eff284-4804-42ce-961b-28edea037c7b.gif)
+This extension repo is archived because the functionaly provided by it is now part of [Financeextras](https://github.com/compucorp/io.compuco.financeextras) extension.
+
